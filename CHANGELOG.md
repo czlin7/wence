@@ -1,6 +1,6 @@
 # Changelog
 
-Notable changes to this project are recorded here. This changelog follows the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format. The project has not yet assigned a release tag or semantic version.
+Notable changes to this project are recorded here. This changelog follows the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
 ## [Unreleased]
 
@@ -13,6 +13,7 @@ Notable changes to this project are recorded here. This changelog follows the [K
 - Git ignore rules for credentials, runtime logs, editor files, and generated output.
 - A local Qwen3 assistant for customer-facing reply openings, with first-run setup progress in the browser.
 - Bundled llama.cpp runtime archives and checksum-verified ModelScope model downloads.
+- Display the current application version in the header.
 
 ### Changed
 
