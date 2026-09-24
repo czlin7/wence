@@ -98,6 +98,17 @@ button:disabled {
   font-weight: 650;
 }
 
+.app-version {
+  padding: 2px 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
 .service-status {
   display: flex;
   align-items: center;
