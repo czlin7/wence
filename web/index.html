@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>问策台</title>
+    <link rel="stylesheet" href="./css/app.css" />
+    <script src="./js/app.js" defer></script>
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">问</span>
+        <h1>问策台</h1>
+      </div>
+      <p class="service-status">
+        <span class="status-indicator" aria-hidden="true"></span>
+        <span id="serverStatus" role="status" aria-live="polite"
+          >正在连接服务</span
+        >
+      </p>
+    </header>
+
+    <main class="app-shell">
+      <section id="llmSetup" class="llm-setup" aria-labelledby="llmSetupTitle" role="status" aria-live="polite">
+        <div class="llm-setup-heading">
+          <div>
+            <h2 id="llmSetupTitle">正在配置本地话术助手</h2>
+            <p id="llmSetupMessage">正在连接本地服务…</p>
+          </div>
+          <span id="llmSetupPercent" class="setup-percent" aria-hidden="true"></span>
+        </div>
+        <div class="setup-progress" role="progressbar" aria-label="本地话术助手配置进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <span id="llmSetupProgress"></span>
+        </div>
+        <p id="llmSetupDetail" class="setup-detail">
+          首次启动会下载约 1.3 GB 模型到本地。完成后，话术生成将在此电脑上运行。
+        </p>
+        <div id="llmSetupActions" class="setup-actions" hidden>
+          <button id="retryLlmSetup" class="button button-secondary" type="button">重试配置</button>
+          <button id="dismissLlmSetup" class="button button-secondary" type="button">继续使用</button>
+        </div>
+      </section>
+
+      <div id="appContent" hidden>
+      <section class="search-panel" aria-labelledby="analysisTitle">
+        <h2 id="analysisTitle">股票分析</h2>
+        <form id="analysisForm" class="query-form">
+          <div class="field">
+            <label for="stockInput">股票代码或名称</label>
+            <input
+              id="stockInput"
+              name="stock"
+              type="text"
+              value="600519"
+              placeholder="例如：600519 或 贵州茅台"
+              autocomplete="off"
+              required
+            />
+          </div>
+          <div class="field">
+            <label for="questionInput">客户问题</label>
+            <input
+              id="questionInput"
+              name="question"
+              type="text"
+              placeholder="例如：近期波动如何？"
+              autocomplete="off"
+            />
+          </div>
+          <button id="go" class="button button-primary" type="submit">
+            分析股票
+            <span id="loading" class="loading" aria-hidden="true">分析中…</span>
+          </button>
+        </form>
+        <div id="banner" class="banner" role="status" aria-live="polite"></div>
+      </section>
+
+      <div id="results" class="result-area" hidden>
+        <section id="stockHead" class="subject-summary" aria-label="当前股票">
+          <div>
+            <h2 class="subject-name">
+              <span id="name">—</span>
+              <span id="code" class="subject-code">—</span>
+            </h2>
+            <p id="meta" class="subject-meta">—</p>
+          </div>
+          <div class="subject-price">
+            <span class="field-caption">最新收盘价</span>
+            <strong id="price" class="price flat">—</strong>
+            <span id="pct" class="price-change">—</span>
+          </div>
+        </section>
+
+        <nav class="primary-nav" aria-label="分析内容" role="tablist">
+          <button
+            id="tab-overview"
+            class="tab active"
+            type="button"
+            role="tab"
+            aria-selected="true"
+            aria-controls="overview"
+            data-tab="overview"
+          >
+            概览
+          </button>
+          <button
+            id="tab-deep"
+            class="tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="deep"
+            data-tab="deep"
+            tabindex="-1"
+          >
+            指标
+          </button>
+          <button
+            id="tab-mirror"
+            class="tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="mirror"
+            data-tab="mirror"
+            tabindex="-1"
+          >
+            历史对照
+          </button>
+          <button
+            id="tab-talk"
+            class="tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="talk"
+            data-tab="talk"
+            tabindex="-1"
+          >
+            回复建议
+          </button>
+          <button
+            id="tab-compliance"
+            class="tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="compliance"
+            data-tab="compliance"
+            tabindex="-1"
+          >
+            合规检查
+          </button>
+        </nav>
+
+        <section
+          id="overview"
+          class="pane active"
+          role="tabpanel"
+          aria-labelledby="tab-overview"
+          tabindex="0"
+        >
+          <div class="metric-grid overview-metrics">
+            <article class="metric-item">
+              <h3>20日涨跌幅</h3>
+              <p id="ret20" class="metric-value">—</p>
+              <p id="trendHint" class="metric-note">等待分析</p>
+            </article>
+            <article class="metric-item">
+              <h3>成交量倍数</h3>
+              <p id="vr" class="metric-value">—</p>
+              <p id="volumeHint" class="metric-note">当日成交量 ÷ 近20日均量</p>
+            </article>
+            <article class="metric-item">
+              <h3>相对行业差值</h3>
+              <p id="peerAdj" class="metric-value">—</p>
+              <p id="peerHint" class="metric-note">相对行业当日中位涨跌</p>
+            </article>
+            <article class="metric-item">
+              <h3>PE(TTM)历史分位</h3>
+              <p id="pePos" class="metric-value">—</p>
+              <p id="peHint" class="metric-note">等待分析</p>
+            </article>
+          </div>
+
+          <div class="overview-grid">
+            <section
+              class="content-section question-section"
+              aria-labelledby="intentTitle"
+            >
+              <h2 id="intentTitle">问题类型</h2>
+              <p id="intent" class="intent-value">分析后显示</p>
+            </section>
+            <section
+              class="content-section summary-section"
+              aria-labelledby="summaryTitle"
+            >
+              <h2 id="summaryTitle">分析摘要</h2>
+              <p id="oneMin" class="summary-text">分析后显示</p>
+              <div class="subsection">
+                <h3>后续问题</h3>
+                <div id="followups" class="button-list"></div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section
+          id="deep"
+          class="pane"
+          role="tabpanel"
+          aria-labelledby="tab-deep"
+          tabindex="0"
+          hidden
+        >
+          <div class="detail-grid">
+            <section
+              class="content-section chart-section"
+              aria-labelledby="chartTitle"
+            >
+              <h2 id="chartTitle">近120个交易日收盘价（元）</h2>
+              <canvas
+                id="chart"
+                class="chart"
+                role="img"
+                aria-label="近120个交易日收盘价走势，单位为元"
+              >
+                当前浏览器无法显示图表。
+              </canvas>
+            </section>
+            <section class="content-section" aria-labelledby="technicalTitle">
+              <h2 id="technicalTitle">技术指标</h2>
+              <div id="quantGrid" class="technical-grid"></div>
+            </section>
+          </div>
+
+          <section class="content-section" aria-labelledby="fundTitle">
+            <h2 id="fundTitle">财务指标</h2>
+            <div class="two-column-layout">
+              <div id="fundLatest" class="data-list"></div>
+              <div>
+                <h3 class="subheading">报告期趋势</h3>
+                <div id="fundTrend" class="record-list"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="content-section" aria-labelledby="abnormalTitle">
+            <h2 id="abnormalTitle">价格与成交量异常</h2>
+            <div id="abnormal" class="record-list"></div>
+          </section>
+
+          <section class="content-section" aria-labelledby="availabilityTitle">
+            <h2 id="availabilityTitle">数据状态</h2>
+            <div id="availability" class="data-list"></div>
+          </section>
+        </section>
+
+        <section
+          id="mirror"
+          class="pane"
+          role="tabpanel"
+          aria-labelledby="tab-mirror"
+          tabindex="0"
+          hidden
+        >
+          <section class="content-section" aria-labelledby="historyTitle">
+            <h2 id="historyTitle">历史相似交易日</h2>
+            <p class="section-note">
+              按当日涨跌、成交量和短期趋势筛选；后续表现仅作历史对照。
+            </p>
+            <div id="mirrorSummary" class="history-summary"></div>
+          </section>
+          <section class="content-section" aria-labelledby="samplesTitle">
+            <h2 id="samplesTitle">历史样本</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">日期</th>
+                    <th scope="col">当日涨跌幅</th>
+                    <th scope="col">成交量倍数</th>
+                    <th scope="col">5日涨跌幅</th>
+                    <th scope="col">相似度</th>
+                    <th scope="col">后1日</th>
+                    <th scope="col">后5日</th>
+                    <th scope="col">后20日</th>
+                  </tr>
+                </thead>
+                <tbody id="mirrorRows"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section
+          id="talk"
+          class="pane"
+          role="tabpanel"
+          aria-labelledby="tab-talk"
+          tabindex="0"
+          hidden
+        >
+          <section class="content-section" aria-labelledby="replyTitle">
+            <div class="section-heading">
+              <h2 id="replyTitle">回复建议</h2>
+              <div class="reply-controls">
+                <label for="tone">沟通方式</label>
+                <select id="tone" class="select">
+                  <option value="natural">自然</option>
+                  <option value="professional">专业</option>
+                  <option value="simple">通俗</option>
+                </select>
+                <button
+                  id="refreshTalk"
+                  class="button button-secondary"
+                  type="button"
+                >
+                  更换表达
+                </button>
+              </div>
+            </div>
+            <p id="talkModelStatus" class="talk-model-status" role="status" aria-live="polite"></p>
+            <div id="talkGrid" class="response-grid"></div>
+          </section>
+          <section class="content-section" aria-labelledby="talkFollowupsTitle">
+            <h2 id="talkFollowupsTitle">后续问题</h2>
+            <div id="talkFollowups" class="button-list"></div>
+          </section>
+        </section>
+
+        <section
+          id="compliance"
+          class="pane"
+          role="tabpanel"
+          aria-labelledby="tab-compliance"
+          tabindex="0"
+          hidden
+        >
+          <div class="detail-grid compliance-grid">
+            <section class="content-section" aria-labelledby="draftTitle">
+              <h2 id="draftTitle">待检查回复</h2>
+              <label class="visually-hidden" for="draft">待检查回复</label>
+              <textarea
+                id="draft"
+                class="textarea"
+                placeholder="输入准备发送的回复"
+                rows="7"
+              ></textarea>
+              <button
+                id="checkDraft"
+                class="button button-primary"
+                type="button"
+              >
+                检查回复
+              </button>
+              <div
+                id="flags"
+                class="flags"
+                role="status"
+                aria-live="polite"
+              ></div>
+            </section>
+            <section class="content-section" aria-labelledby="rewriteTitle">
+              <h2 id="rewriteTitle">改写建议</h2>
+              <div id="rewrite" class="rewrite" aria-live="polite">
+                检查后显示结果
+              </div>
+            </section>
+          </div>
+        </section>
+      </div>
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,33 @@
+# Local credentials and environment files
+/api_key.txt
+.env
+.env.*
+!.env.example
+
+# Downloaded local language model and extracted runtime
+/Models/*.gguf
+/Models/*.part
+/Models/*.sha256
+/bin/llama/runtime/
+/bin/llama/macos/
+/bin/llama/windows/
+
+# Runtime logs (keep the directory in Git)
+/Logs/*
+!/Logs/.gitkeep
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Generated build output
+node_modules/
+dist/
+build/
